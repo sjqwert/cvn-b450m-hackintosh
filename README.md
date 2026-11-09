@@ -25,6 +25,15 @@
   <sub>MacPro7,1 · macOS 26.7.2 Tahoe (25G332) · 序列号已抹去</sub>
 </p>
 
+### 什么时候不该用这个仓库
+
+符合下面任意一条，建议直接关掉这个页面：
+
+- **想省事。** 这条路已经没什么人走了，这套配置是在旧路上继续凿出来的。装完不等于能用，能用不等于稳定。
+- **要跑需要 Secure Boot 的软件。** 反作弊游戏、部分企业 VPN，这套配置永远过不去。
+- **靠它吃饭。** [下面列的两条硬缺陷](#已知限制)决定了它不适合当主力剪辑 / 渲染机。真要生产力，一张 RX 6600 比折腾一个月有用。
+- **怕承担风险。** 刷 BIOS、改 EFI 都可能让机器变砖，而这块主板**没有双 BIOS**。
+
 ---
 
 ## 硬件配置
@@ -252,11 +261,13 @@ SIP 处于这种半开状态是必要的：NVIDIA 驱动是未签名 kext，必�
 
 ## 已知限制
 
-这些**不是配置错误**，是硬件或系统层面的死结。详细推导见 [docs/06-known-issues.md](docs/06-known-issues.md)。
+**先说结论**：这台机器的天花板在硬件，不在配置。下面 7 条里，**4 条无解、2 条要换硬件、1 条要加内存**。
 
-### 1. BAR1 只有 256 MB
+每一条都有实测证据和失败尝试记录，完整推导见 [docs/06-known-issues.md](docs/06-known-issues.md)。
 
-这块卡的 BAR1 窗口是 256 MB，而 macOS 的 `IOFramebuffer` 要求扫描输出缓冲必须落在 CPU 可映射的 BAR1 里。
+### 1. BAR1 只有 256 MB —— 最影响体验
+
+macOS 的 `IOFramebuffer` 要求扫描输出缓冲必须落在 **CPU 可映射的 BAR1** 里，而这块卡的 BAR1 只有 256 MB：
 
 ```
 256 MB = 扫描缓冲 56.5 MB + 加速器预算 183.5 MB + 守卫 16 MB
@@ -268,28 +279,90 @@ SIP 处于这种半开状态是必要的：NVIDIA 驱动是未签名 kext，必�
 - 每秒约 145 次整帧显存申请失败
 - 拖动窗口、滚动列表发涩
 
-**尝试过的解法**：改 VBIOS 扩 ReBAR 能力位（Turing VBIOS 只声明 64/128/256 MB 三档，能力位掩码 `0x1c0`）、刷修改版 BIOS（被 AMI Secure Flash 签名校验拦住，零写入）。
+**为什么改不动**：限制不在 BIOS，在 **Turing VBIOS** —— 它的 ReBAR 能力位掩码只有 `0x1c0`，对应 64 / 128 / 256 MB 三档。NVIDIA 从未给 20 系发放支持大 BAR 的固件（官方 ReBAR 自 Ampere 才开始）。
 
-**真正的出路**只有两条：
+试过并失败的：BIOS 开 Re-Size BAR、移除 `npci=0x2000`、`sysctl` 调 `nvrmfb_vram_budget_bytes`（`read only`，root 也不行）、改 `ResizeAppleGpuBars`、往固件里注入 NvStrapsReBar 模块（被 Secure Flash 签名拦下，零写入）。
 
-- **A.** 改 VBIOS 扩 ReBAR 能力位（需 Windows + `nvflash`，有变砖风险）
+**出路只有两条**：
+
+- **A.** 改 VBIOS 扩能力位（Windows + `nvflash`，刷坏即变砖）
 - **B.** 加一张 macOS 原生支持的 AMD 卡做显示输出，RTX 只做计算
 
-### 2. 硬件视频编解码首次查询返回 NO
+### 2. 硬件解码首次查询恒返回 NO —— 第二影响
 
-每个进程第一次查询硬件解码能力总是返回 `NO`，导致剪辑/渲染软件误判为"无硬解"，退回 CPU 软解。这是驱动的能力位上报缺陷，用户侧无法修复。
+每个进程**第一次**调用 `VTIsHardwareDecodeSupported()` 恒返回 `NO`：
 
-### 3. 着色器冷编译慢
+```
+单独查询 HEVC（首次）    → NO        ← bug 在此
+先查 H.264，再查 HEVC    → HEVC = YES
+```
 
-每个 kernel 编译耗时 5–9 ms，大型工程首次打开累计可达数十秒。可开启驱动侧 SASS 缓存缓解。
+预热后的真实能力是 `H.264 = YES`、`HEVC = YES`、`ProRes = NO`、`VP9 = NO`、`AV1 = NO`。但 Chrome、Safari、QuickTime、DaVinci、Premiere 都只查一次，于是全部误判「无硬解」退回 CPU 软解 —— Ryzen 5 3500X 只有 6 核 6 线程，软解 4K 直接满载。
 
-### 4. 蓝牙
+**这是「看视频卡」的第一原因，比 BAR1 更致命。** 驱动里解码器是存在的（`libnvdec_h264.dylib`），缺陷在注册时机，用户侧改不了。绕法：素材转 HEVC，或用代理剪辑。
 
-BCM4350C2 被识别为 `BCM_4350C2`，但 `State: Off`。完整讨论见 [docs/04-bluetooth.md](docs/04-bluetooth.md)。
+### 3. Secure Boot 必须永久关闭
 
-### 5. Secure Boot 被完全关闭
+未签名 kext（NVIDIA 驱动、SimpleHDA）与 Secure Boot 不可共存。本配置：`SecureBootModel = Disabled`、`csr-active-config = 0x0A43`。
 
-未签名 kext 与 Secure Boot 不可共存。这台机器上 Secure Boot 永远是关的。
+代价是明确的：
+
+- 需要 Secure Boot 的软件用不了（部分反作弊游戏、企业 VPN）
+- macOS 的 Sealed Volume 完整性校验失效
+- 系统更新有可能改坏自定义 kext，**更新前请先备份 EFI**
+
+### 4. 主板没有双 BIOS，刷坏只能拆机
+
+七彩虹 CVN B450M GAMING V14 只有**一颗** SPI flash，没有 FlashBack 按钮。
+
+刷坏后只有两条救法：① CH341A 编程器夹 SPI 芯片（需拆机，芯片位置在显卡下方）；② UEFI Shell 里用 AFU 刷回 —— **前提是还能 POST**。
+
+这也是为什么本仓库作者在尝试刷修改版 BIOS 之前，先完整 dump 了一份 16 MB 原厂固件存档。
+
+### 5. 蓝牙未工作，AirDrop 不可能
+
+BCM4350C2 被识别为 `BCM_4350C2`，但 `State: Off`、`Firmware v0 c0`（固件未上传）。见 [docs/04-bluetooth.md](docs/04-bluetooth.md)。
+
+AirDrop / 隔空投送 / 接力 需要 **Wi-Fi + 蓝牙组合卡**，这块主板上没有 Wi-Fi，所以这些功能全部不可用，不是配置问题。
+
+另外，**CSR8510 一类廉价 USB 蓝牙棒在 macOS 上永远不可能工作** —— 系统里没有驱动它们的代码，已经九年了。
+
+### 6. 着色器冷编译慢
+
+每个 kernel 编译 5.9–8.8 ms，真实工程数千个材质变体，首次打开会冻结数十秒。这是 Metal → SPIR-V → Vulkan → NVK → SASS 翻译层的固有开销，原生驱动没有这一层。
+
+跨进程缓存有效（第二次快约 115 倍），**所以绝对不要清 `~/.cache/mesa_shader_cache`**。
+
+### 7. 内存 16 GB 偏小
+
+压缩页已达 125,100，渲染软件会触发内存压缩换页，表现为「切后台再切回来要等」。
+
+**这是唯一还有明确收益的硬件升级** —— 加到 64 GB。
+
+---
+
+### 看起来能修、其实修不了
+
+| 你可能想这么干 | 实际结果 |
+|---|---|
+| 在 BIOS 里打开 Re-Size BAR 扩大 BAR1 | 开了也是 256 MB，限制在 Turing VBIOS 能力位 |
+| 刷修改版 BIOS 塞入 ReBAR 模块 | AMI Secure Flash 签名校验；`/p /b /x /k /l`、`/CAPSULE`、`/RECOVERY` 三种策略全部 `18 - Error: Secure Flash Rom Verify fail`，**零写入** |
+| 在系统里用 flashrom 直接刷 SPI | 固件里的 `AmdSpiRomProtectDxe` 把 SPI 控制器锁成只读，`SpiAccessMacRomEn` 复位后无法再置位 |
+| 插个 CSR8510 USB 蓝牙棒 | macOS 无驱动，且已无望 |
+| 打开 Secure Boot 去玩反作弊游戏 | 与未签名 kext 不可共存 |
+| 等 NVIDIA 恢复官方 macOS 驱动 | 不会发生，Apple 从 10.14 起就断了 |
+
+### 一览
+
+| # | 限制 | 影响 | 能修吗 | 怎么办 |
+|---|---|---|---|---|
+| 1 | BAR1 仅 256 MB | 高 | ❌ | 换 AMD 卡 / 改 VBIOS（高危） |
+| 2 | 硬解首查返回 NO | 高 | ❌ | 素材转 HEVC、代理剪辑 |
+| 3 | Secure Boot 关闭 | 中 | ❌ | 不可能 |
+| 4 | 无双 BIOS | 中 | ❌ | 硬件事实，靠备份自救 |
+| 5 | 蓝牙 / AirDrop | 中 | ⚠️ | 换 BCM94360 组合卡 |
+| 6 | 着色器冷编译 | 低 | ⚠️ | 保留缓存 |
+| 7 | 内存 16 GB | 低 | ✅ | 加内存 |
 
 ---
 
