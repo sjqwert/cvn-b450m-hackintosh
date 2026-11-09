@@ -3,7 +3,7 @@
 > macOS 26.7.2 Tahoe (25G332) 在 AMD B450 + NVIDIA Turing 上的可用配置
 > 已连续运行验证，音频 / 显卡加速 / 有线网络 / 睡眠 均可工作
 
-[硬件配置](#硬件配置) · [快速开始](#快速开始) · [已知限制](#已知限制) · [文档索引](#相关文档)
+[硬件配置](#硬件配置) · [快速开始](#快速开始) · [已知限制](#已知限制) · [文档索引](#相关文档) · [**下载完整包**](https://github.com/sjqwert/cvn-b450m-hackintosh/releases/latest)
 
 ---
 
@@ -75,9 +75,12 @@
 
 ### 前提
 
+- **拿到本仓库的文件** —— [下载完整包](https://github.com/sjqwert/cvn-b450m-hackintosh/releases/latest)（zip，约 12 MB，含 EFI + 文档 + 工具），或 `git clone`
 - 一块 **≥ 512 MB 的 U 盘**（FAT32）
 - 已在另一台电脑上准备好 macOS 安装盘（本仓库只含引导，不含系统）
 - 会改 BIOS 设置，能接受"刷坏了要拆机"的风险
+
+> 完整包和 clone 的内容一致。包内 `EFI/` 目录可以直接拷进 ESP；**NVIDIA 驱动本体与三码不在包内**，需自行准备，见 [docs/05](docs/05-nvidia.md) 与 [docs/08](docs/08-smbios.md)。
 
 ### 第 1 步：BIOS 设置
 
