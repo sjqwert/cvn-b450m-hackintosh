@@ -1,0 +1,34 @@
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+
+# OpenCore 配置备份（不纳入版本管理）
+EFI/OC/config.plist.bak*
+EFI/OC/config.plist.before-*
+EFI/OC/config.plist.nullmoth-*
+EFI/OC/_oc-backups/
+
+# OpenCore 日志
+EFI/opencore-*.txt
+EFI/memtest*
+EFI/OC/*.log
+
+# 编译产物
+tools/extras/BrightnessBar/BrightnessBar
+tools/extras/CamView/CamView.bin
+tools/audio/setoutput
+*.o
+*.dSYM
+
+# 三码 / 本地覆写（防止误提交）
+config.local.plist
+*.local.plist
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*~

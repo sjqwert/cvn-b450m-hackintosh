@@ -1,0 +1,105 @@
+MIT License
+
+Copyright (c) 2026 hackintosh-cvn-b450m contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+THIRD-PARTY COMPONENTS
+======================
+
+This license applies ONLY to the configuration files, documentation, and
+scripts authored for this repository. It does NOT apply to third-party
+binaries distributed under EFI/OC/ or referenced in the documentation.
+
+The following components are included and remain under their own licenses:
+
+  OpenCore.efi, OpenRuntime.efi, BOOTx64.efi
+      OpenCorePkg — BSD-3-Clause — (c) Acidanthera
+      https://github.com/acidanthera/OpenCorePkg
+
+  Lilu.kext, WhateverGreen.kext
+      BSD-3-Clause — (c) Acidanthera
+      https://github.com/acidanthera/Lilu
+      https://github.com/acidanthera/WhateverGreen
+
+  VirtualSMC.kext
+      BSD-3-Clause — (c) Acidanthera
+      https://github.com/acidanthera/VirtualSMC
+
+  AppleALC.kext
+      BSD-3-Clause — (c) Acidanthera
+      https://github.com/acidanthera/AppleALC
+
+  RestrictEvents.kext
+      BSD-3-Clause — (c) Acidanthera
+      https://github.com/acidanthera/RestrictEvents
+
+  NVMeFix.kext
+      BSD-3-Clause — (c) Acidanthera
+      https://github.com/acidanthera/NVMeFix
+
+  HfsPlus.efi
+      Apple Inc. proprietary redistributable
+
+  apfs_aligned.efi
+      Derived from Apple APFS EFI driver, community-modified
+
+  ResetNvramEntry.efi
+      BSD-3-Clause — (c) Acidanthera
+
+  RealtekRTL8111.kext
+      GPL-2.0 — (c) Mieze
+      https://github.com/Mieze/RTL8111_driver_for_OS_X
+
+  USBToolBox.kext, UTBDefault.kext
+      GPL-3.0 — (c) USBToolBox
+      https://github.com/USBToolBox
+
+  AMFIPass.kext
+      BSD-3-Clause — (c) dhinakg
+      https://github.com/dhinakg/AMFIPass
+
+  CtlnaAHCIPort.kext
+      (c) outtaym — see upstream for license
+
+  AppleMCEReporterDisabler.kext
+      (c) XLNC — see upstream for license
+
+  BrcmPatchRAM3.kext, BrcmFirmwareData.kext, BlueToolFixup.kext
+      BSD-3-Clause — (c) Acidanthera
+      https://github.com/acidanthera/BrcmPatchRAM
+
+  SimpleHDA.kext, RTLBluetoothFirmware.kext, NullMothSafe.efi
+      (c) laobamac — distributed here for interoperability only.
+      Rights remain with the original author. Removal on request.
+
+  AMD kernel patches (inline in config.plist)
+      (c) algrey, Shaneee, CaseySJ, XLNC, Visual, Zormeister,
+          Goldfish64 and the AMD OSX community
+      https://amd-osx.com/
+
+NO NVIDIA / NullMoth DRIVER BINARIES ARE DISTRIBUTED IN THIS REPOSITORY.
+The NVRM/NVRMFB/NVAccel/NVRMAGDC/NMXAudio kexts referenced in the docs
+are third-party closed-source components and must be obtained separately
+from their author.
+
+If you are a rights holder and believe a component is included in error,
+please open an issue and it will be removed promptly.
