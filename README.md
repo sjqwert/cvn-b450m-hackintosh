@@ -320,7 +320,7 @@ BCM4350C2 被识别为 `BCM_4350C2`，但 `State: Off`。完整讨论见 [docs/0
 | [AMD OSX](https://amd-osx.com/) | 社区 | 全部 AMD 平台知识的来源 |
 | NullMoth / SimpleHDA | laobamac | NVIDIA 驱动、macOS 26 音频栈 |
 
-本仓库自身的配置、文档与脚本以 MIT 协议发布，第三方组件遵循各自协议。
+本仓库自身的配置、文档与脚本以 **MIT** 协议发布，第三方组件的归属与协议逐项列在 [THIRD-PARTY.md](THIRD-PARTY.md)。
 
 ---
 
@@ -335,4 +335,5 @@ BCM4350C2 被识别为 `BCM_4350C2`，但 `State: Off`。完整讨论见 [docs/0
 - [故障排查](docs/07-troubleshooting.md)
 - [三码生成](docs/08-smbios.md)
 - [组件清单](docs/09-kexts.md)
+- [第三方组件与协议](THIRD-PARTY.md)
 - [工具说明](tools/README.md)
