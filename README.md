@@ -151,6 +151,24 @@ U 盘格式化为 **FAT32**、分区表 **GPT**，把本仓库的 `EFI/` 整个�
 
 用法见 [tools/README.md](tools/README.md)。
 
+### 第 6 步：装 NVIDIA 驱动（用 1401）
+
+没有驱动也能进桌面，只是显卡跑在无加速的基础帧缓冲上。要拿到 Metal 3 加速，装第三方驱动：
+
+**下载** —— [1401 Releases](https://github.com/nullmoth/nvidia-macos-driver/releases) → 拿 `1401-Mac-<版本>.dmg`（约 3 MB，**驱动包已内置在 dmg 里**，不用另外下载 250 MB 的 tar.gz）
+
+**用法** —— 打开 dmg 里的 1401，按它的步骤走。它会自动找到启动本机的那份 OpenCore，改之前先备份 `config.plist`，并把每一处变更列给你看。
+
+**必须记住的三件事**：
+
+1. 运行 1401 时、以及之后每一次重启，**启动盘要一直插着** —— 它改的就是那块盘上的配置，从不往内置硬盘复制
+2. 启动菜单里会多一条 `1401: Remove NVIDIA driver`，选了就是**彻底卸载**并还原 OpenCore 配置，**别当成急救项误选**
+3. 黑屏救急要用另一条：`NullMoth: start once without the driver`（临时追加 `-nvoff` 启动，不改任何配置）
+
+本配置验证于驱动 **2.7.2**；截稿时官方最新为 **2.8.1**（2026-11-08 发布）。升级前先备份 EFI。
+
+完整说明（安装器到底改了什么、两个登录项、日志上报、驱动版本差异）见 [docs/05-nvidia.md](docs/05-nvidia.md)。
+
 ---
 
 ## 目录结构
@@ -375,7 +393,7 @@ AirDrop / 隔空投送 / 接力 需要 **Wi-Fi + 蓝牙组合卡**，这块主�
 
 - 刷 BIOS、改 EFI 有**变砖**风险。本仓库作者不对任何数据丢失、硬件损坏负责。
 - `config.plist` 里的三码是占位符。**填入他人序列号可能导致 Apple ID 被封**。
-- 本仓库**不分发** NVIDIA 驱动本身（NullMoth 为闭源第三方组件），只提供配置参数。
+- 本仓库**不分发** NVIDIA 驱动本身（第三方组件，约 250 MB 且迭代频繁，不适合入仓）。安装请用官方的 [1401](https://github.com/nullmoth/1401)，见 [docs/05](docs/05-nvidia.md#依赖什么)。
 - macOS 的使用需遵守 Apple 的最终用户许可协议。黑苹果在多数司法辖区处于法律灰色地带，请自行判断。
 - 不提供 Apple 服务（iMessage、iCloud、App Store）的可用性保证。
 

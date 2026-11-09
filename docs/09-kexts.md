@@ -100,7 +100,7 @@ NullMoth: start once without the driver     ← 选这个
 1401: Remove NVIDIA driver
 ```
 
-**黑屏时用第一条。**
+**黑屏时用第一条。** 第二条是官方安装器 [1401](https://github.com/nullmoth/1401) 加进来的，作用是**一次性彻底卸载驱动**并还原 OpenCore 配置，误选等于白装一遍。
 
 ---
 
@@ -130,7 +130,7 @@ NullMoth: start once without the driver     ← 选这个
 
 | 组件 | 原因 |
 |---|---|
-| NVRM / NVRMFB / NVAccel / NVRMAGDC / NMXAudio | NVIDIA 驱动是第三方闭源组件，版权在作者手里 |
+| NVRM / NVRMFB / NVAccel / NVRMAGDC / NMXAudio | 第三方组件（NullMoth），源码公开但体积大、迭代频繁，不适合入仓；用 [1401](https://github.com/nullmoth/1401) 安装 |
 | macOS 安装镜像 | 法律风险 |
 | 三码（序列号 / MLB / UUID） | 已脱敏为占位符，每人必须自己生成 |
 | 你的 config 备份 | 那是你的隐私，不是用来分享的 |

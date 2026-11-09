@@ -50,7 +50,7 @@
 
 | 组件 | 说明 |
 |---|---|
-| `NVRM.kext` · `NVRMFB.kext` · `NVRMAGDC.kext` · `NVAccel.kext` · `NMXAudio.kext` | NVIDIA 驱动（NullMoth，闭源第三方） |
+| `NVRM.kext` · `NVRMFB.kext` · `NVRMAGDC.kext` · `NVAccel.kext` · `NMXAudio.kext` | NVIDIA 驱动（NullMoth，第三方；源码公开于 [nvidia-macos-driver](https://github.com/nullmoth/nvidia-macos-driver)，用 [1401](https://github.com/nullmoth/1401) 安装） |
 | macOS 安装镜像 | 法律风险 |
 | 三码（序列号 / MLB / UUID） | 每人必须自行生成 |
 

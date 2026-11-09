@@ -17,9 +17,61 @@
 
 ## 依赖什么
 
-NVIDIA 驱动**不在本仓库里**。它是第三方闭源组件（NullMoth / laobamac 移植），需要自行获取安装。
+NVIDIA 驱动**不在本仓库里**，需要自行获取安装。它是第三方组件（NullMoth），源码公开在 [nullmoth/nvidia-macos-driver](https://github.com/nullmoth/nvidia-macos-driver)，但预编译包约 250 MB、版本迭代频繁，不随本仓库分发。
 
-安装后系统里会有这五个 kext：
+**别手工拷 kext。** 用官方的安装器 **1401**，它会连 OpenCore 配置一起改好。
+
+### 1401：唯一推荐的安装方式
+
+1401 是独立项目，Mac 与 Windows 双端都有：
+
+| 项目 | 地址 | 内容 |
+|---|---|---|
+| **1401**（安装器） | [github.com/nullmoth/1401](https://github.com/nullmoth/1401) | 图形界面安装 / 卸载 / 诊断，Windows 端还能用来装 macOS |
+| 驱动本体 | [github.com/nullmoth/nvidia-macos-driver](https://github.com/nullmoth/nvidia-macos-driver) | 内核模块 + Metal 插件 + 着色器翻译层，源码在仓库里 |
+
+**下载哪个文件** —— 不用 clone，直接进 Releases：
+
+- 下载页：[Releases](https://github.com/nullmoth/nvidia-macos-driver/releases)
+- 拿 **`1401-Mac-<版本>.dmg`**（约 3 MB）。**驱动包已经内置在 dmg 里**，不需要另外去下那个 250 MB 的 tar.gz
+- 只有想手工安装或审计源码时，才需要 `nullmoth-nvidia-<版本>.tar.gz`
+
+本配置验证于 **2.7.2**。截稿时官方最新为 **2.8.1**（2026-11-08 发布）。升级前先备份 EFI，理由见文末「驱动版本说明」。
+
+### 1401 具体做了什么
+
+它不是「下一步 → 下一步」的傻瓜安装器，装驱动时会**动你的 OpenCore**：
+
+- 自动找到**启动本机的那一份** OpenCore（`EFI/OC` 或 `EFI/BOOT`，在 EFI / FAT32 分区上）
+- 改动前把 `config.plist` 备份一份，并把**每一处变更先列给你看**
+- 写好 `boot-args`、`csr-active-config`、`SecureBootModel` 等必需项（就是下面「必需的 EFI 配置」那几节）
+- 往 OpenCore 启动菜单加一条 **`1401: Remove NVIDIA driver`** —— 选它就会在下次启动时把驱动**连同 OpenCore 配置一起还原到安装前**，然后自动重启
+- 顺带做 USB 端口映射
+
+**一条硬前提：运行 1401 时，以及之后每一次重启，启动用的那块盘都要插着。**
+
+它改的就是那块盘上的配置，**从不会把 OpenCore 复制进内置硬盘**。拔掉它，下次启动读到的是旧配置，驱动不会生效。
+
+### 两个容易踩的点
+
+**1. 启动菜单里两条名字很像的条目，选错就白折腾**
+
+| 条目 | 实际行为 | 什么时候用 |
+|---|---|---|
+| `NullMoth: start once without the driver` | 这一次追加 `-nvoff` 启动，**不改任何配置** | 驱动把系统搞黑屏了，临时进桌面 |
+| `1401: Remove NVIDIA driver` | **彻底卸载**驱动，并把 OpenCore 配置还原 | 决定不装了 |
+
+黑屏救急选第一条。选第二条等于把刚装好的驱动删掉。
+
+**2. 1401 会装两个登录项**
+
+`~/Library/LaunchAgents/` 下会多出两个入口，每次登录各拉起一次 `/Applications/1401.app`（参数 `--reached-desktop` 和 `--tester-report`），用途是状态检查与崩溃诊断。
+
+**它不会自动上传任何东西。** 上报要你在 app 里手动点「Send logs to NullMoth」，且上报前会去掉机器名、序列号和内存地址。不需要的话可以 unload 掉，不影响驱动工作。
+
+### 装完之后
+
+系统里会有这五个 kext：
 
 ```
 /Library/Extensions/
@@ -32,7 +84,7 @@ NVIDIA 驱动**不在本仓库里**。它是第三方闭源组件（NullMoth / l
 
 `kextstat` 里能看到 `com.nullmoth.NVRM (2.7.2)` 这类条目。
 
-**这段配置的作者不对该驱动的可用性、合法性、安全性做任何保证。** 它不属于本仓库。
+**本配置的作者不对该驱动的可用性、合法性、安全性做任何保证。** 它不属于本仓库。
 
 ---
 
