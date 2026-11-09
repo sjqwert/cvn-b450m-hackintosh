@@ -19,6 +19,12 @@
 
 它能满足日常使用和轻度图形工作，但**不是一台 Mac**。硬件层面的限制（尤其是 256 MB 的 BAR1 窗口）无法通过配置解决，详见 [已知限制](#已知限制)。
 
+<p align="center">
+  <img src="docs/images/about-this-mac.png" width="420" alt="关于本机 — MacPro7,1 · macOS 26.7.2 Tahoe">
+  <br>
+  <sub>MacPro7,1 · macOS 26.7.2 Tahoe (25G332) · 序列号已抹去</sub>
+</p>
+
 ---
 
 ## 硬件配置
